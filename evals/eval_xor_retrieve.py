@@ -73,12 +73,15 @@ def main():
     input_data = read_jsonlines(args.data_file)
     # convert input open-domain data into the qid2answer dictionary
     qid2answers = {item["id"]: item["answers"] for item in input_data}
+
     for topk in [2, 5]:
         print("Evaluating R@{}kt".format(topk))
         pred_per_lang_results = evaluate_top_k_hit(
             predictions, qid2answers, topk * 1000)
         avg_scores = []
+        langs = []
         for lang in pred_per_lang_results:
+            langs.append(lang)
             print("performance on {0} ({1} examples)".format(lang, pred_per_lang_results[lang]["count"]))
             per_lang_score = (pred_per_lang_results[lang]["hit"] / pred_per_lang_results[lang]["count"]) * 100
             print(per_lang_score)
@@ -86,8 +89,12 @@ def main():
             avg_scores.append(per_lang_score)
 
         print("Final macro averaged score: ")
-        print(mean(avg_scores))
 
+        print(",".join(langs)) 
+        print(mean(avg_scores))
+        for x in avg_scores:
+            print(x, end=",")
+        print()
 
 if __name__ == "__main__":
     main()
